@@ -279,6 +279,8 @@ final class Report
             return null;
         }
 
+        // PHP < 8.3 does not drop the stat cache on chmod(); always stat fresh.
+        clearstatcache(true, $real);
         $perms = fileperms($real);
 
         if (false === $perms) {
