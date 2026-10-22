@@ -194,6 +194,17 @@ exercised without a real mail server. `tests/Integration` runs the
 tools against a real (or GreenMail) IMAP/SMTP server given by
 `MAILBOX_MCP_TEST_*` environment variables.
 
+## Contributing
+
+Collaboration is welcome, from bug reports on other hosting providers
+and mail servers to documentation and roadmap work. Open an issue first
+for anything that touches the security model; send small, tested pull
+requests for the rest. The rules, the development setup and how this
+project is developed (with Claude Code assistance and an independent
+review of every change) are in [CONTRIBUTING.md](CONTRIBUTING.md).
+Security issues go through private reporting, see
+[SECURITY.md](SECURITY.md).
+
 ## Roadmap
 
 1. OAuth 2.1 per the MCP authorization spec, so no long-lived secret is
