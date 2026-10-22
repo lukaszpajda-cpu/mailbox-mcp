@@ -1,0 +1,118 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  php:
+    name: PHP ${{ matrix.php }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        php: ['8.2', '8.3', '8.4', '8.5']
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up PHP ${{ matrix.php }}
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          extensions: mbstring, intl, iconv, openssl, json
+          coverage: none
+
+      - name: Install dependencies
+        run: composer install --no-interaction --no-progress
+
+      - name: Unit tests
+        run: vendor/bin/phpunit --testsuite Unit
+
+      - name: Static analysis
+        run: vendor/bin/phpstan analyse --no-progress
+
+      - name: Coding standard
+        run: vendor/bin/php-cs-fixer check --diff
+
+  integration:
+    name: Integration (GreenMail)
+    runs-on: ubuntu-latest
+    services:
+      greenmail:
+        image: greenmail/standalone:2.1.3
+        env:
+          GREENMAIL_OPTS: -Dgreenmail.setup.test.all -Dgreenmail.hostname=0.0.0.0 -Dgreenmail.auth.disabled=false -Dgreenmail.users=test:test@localhost -Dgreenmail.verbose
+        ports:
+          - 3025:3025
+          - 3143:3143
+          - 3465:3465
+          - 3587:3587
+          - 3993:3993
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up PHP 8.4
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          extensions: mbstring, intl, iconv, openssl, json
+          coverage: none
+
+      - name: Install dependencies
+        run: composer install --no-interaction --no-progress
+
+      - name: Wait for GreenMail
+        run: |
+          for _ in $(seq 1 60); do
+            if php -r 'exit(@fsockopen("127.0.0.1", 3143, $e, $s, 1) ? 0 : 1);'; then
+              echo "GreenMail IMAP is up"
+              exit 0
+            fi
+            sleep 1
+          done
+          echo "GreenMail IMAP port 3143 did not open in time" >&2
+          exit 1
+
+      - name: Integration tests
+        run: vendor/bin/phpunit --testsuite Integration
+        env:
+          MAILBOX_MCP_TEST_IMAP_HOST: 127.0.0.1
+          MAILBOX_MCP_TEST_IMAP_PORT: 3143
+          MAILBOX_MCP_TEST_IMAP_ENCRYPTION: none
+          MAILBOX_MCP_TEST_SMTP_HOST: 127.0.0.1
+          MAILBOX_MCP_TEST_SMTP_PORT: 3025
+          MAILBOX_MCP_TEST_SMTP_ENCRYPTION: none
+          MAILBOX_MCP_TEST_USER: test
+          MAILBOX_MCP_TEST_PASSWORD: test
+          MAILBOX_MCP_TEST_EMAIL: test@localhost
+          MAILBOX_MCP_TEST_VERIFY_PEER: '0'
+
+  conformance:
+    name: MCP conformance
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up PHP 8.4
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          extensions: mbstring, intl, iconv, openssl, json
+          coverage: none
+
+      - name: Install PHP dependencies
+        run: composer install --no-interaction --no-progress
+
+      - name: Set up Node 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Install Node dependencies
+        run: npm ci
+
+      - name: Run MCP conformance suite
+        run: bash bin/conformance.sh

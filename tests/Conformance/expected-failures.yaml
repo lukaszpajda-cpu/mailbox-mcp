@@ -1,0 +1,38 @@
+# Expected-failure baseline for:
+#   npx @modelcontextprotocol/conformance server --url ... \
+#     --expected-failures tests/Conformance/expected-failures.yaml
+#
+# mailbox-mcp only implements MCP tool calls (plus the fixed handshake /
+# ping / tools-list methods); it has no resources, prompts, logging,
+# completion, sampling, elicitation or streaming (SSE) support. Every
+# scenario below exercises one of those unimplemented features; the
+# comment on each line is the one-line reason.
+#
+# These MUST keep passing (i.e. must never appear below):
+#   server-initialize, ping, tools-list, tools-call-simple-text,
+#   tools-call-error, dns-rebinding-protection
+server:
+  - logging-set-level # logging/setLevel not implemented
+  - completion-complete # completion/complete not implemented
+  - tools-call-image # image content type not implemented
+  - tools-call-audio # audio content type not implemented
+  - tools-call-embedded-resource # embedded resource content type not implemented
+  - tools-call-mixed-content # mixed image/audio content not implemented
+  - tools-call-with-logging # tool-triggered log notifications not implemented
+  - tools-call-with-progress # progress notifications not implemented
+  - tools-call-sampling # server-initiated sampling not implemented
+  - tools-call-elicitation # elicitation not implemented
+  - elicitation-sep1034-defaults # elicitation not implemented
+  - server-sse-multiple-streams # SSE streaming transport not implemented (stateless single-response HTTP only)
+  - elicitation-sep1330-enums # elicitation not implemented
+  - resources-list # resources capability not implemented
+  - resources-read-text # resources capability not implemented
+  - resources-read-binary # resources capability not implemented
+  - resources-templates-read # resources capability not implemented
+  - resources-subscribe # resources capability not implemented
+  - resources-unsubscribe # resources capability not implemented
+  - prompts-list # prompts capability not implemented
+  - prompts-get-simple # prompts capability not implemented
+  - prompts-get-with-args # prompts capability not implemented
+  - prompts-get-embedded-resource # prompts capability not implemented
+  - prompts-get-with-image # prompts capability not implemented

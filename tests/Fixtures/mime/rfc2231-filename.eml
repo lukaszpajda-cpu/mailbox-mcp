@@ -1,0 +1,20 @@
+From: biuro@example.com
+To: jan@example.com
+Subject: RFC 2231
+Message-ID: <rfc2231-1@example.com>
+MIME-Version: 1.0
+Content-Type: multipart/mixed; boundary="b2231"
+
+--b2231
+Content-Type: text/plain; charset=us-ascii
+
+See attached.
+--b2231
+Content-Type: application/pdf; name="=?UTF-8?Q?zam=C3=B3wienie.pdf?="
+Content-Disposition: attachment;
+ filename*=UTF-8''zam%C3%B3wienie.pdf
+Content-Transfer-Encoding: base64
+
+JVBERi0xLjQKJSBmaWN0aW9uYWwgaW52b2ljZQoxIDAgb2JqIDw8ID4+IGVuZG9iagp0cmFpbGVy
+IDw8ID4+CiUlRU9GCg==
+--b2231--

@@ -1,0 +1,12 @@
+{
+    "name": "mailbox-mcp",
+    "private": true,
+    "version": "1.0.0",
+    "description": "Dev tooling for mailbox-mcp: the MCP conformance harness (see bin/conformance.sh).",
+    "scripts": {
+        "conformance": "bash bin/conformance.sh"
+    },
+    "devDependencies": {
+        "@modelcontextprotocol/conformance": "0.1.16"
+    }
+}

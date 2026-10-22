@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:noNamespaceSchemaLocation="vendor/phpunit/phpunit/phpunit.xsd"
+         bootstrap="tests/bootstrap.php"
+         cacheDirectory=".phpunit.cache"
+         colors="true"
+         failOnWarning="true"
+         failOnRisky="true"
+         failOnDeprecation="true">
+    <testsuites>
+        <testsuite name="Unit">
+            <directory>tests/Unit</directory>
+        </testsuite>
+        <testsuite name="Integration">
+            <directory>tests/Integration</directory>
+        </testsuite>
+    </testsuites>
+
+    <php>
+        <env name="MAILBOX_MCP_TEST_IMAP_HOST" value=""/>
+        <env name="MAILBOX_MCP_TEST_IMAP_PORT" value=""/>
+        <env name="MAILBOX_MCP_TEST_IMAP_ENCRYPTION" value="none"/>
+        <env name="MAILBOX_MCP_TEST_SMTP_HOST" value=""/>
+        <env name="MAILBOX_MCP_TEST_SMTP_PORT" value=""/>
+        <env name="MAILBOX_MCP_TEST_SMTP_ENCRYPTION" value="none"/>
+        <env name="MAILBOX_MCP_TEST_USER" value=""/>
+        <env name="MAILBOX_MCP_TEST_PASSWORD" value=""/>
+        <env name="MAILBOX_MCP_TEST_EMAIL" value=""/>
+        <env name="MAILBOX_MCP_TEST_VERIFY_PEER" value="0"/>
+    </php>
+
+    <source>
+        <include>
+            <directory>src</directory>
+        </include>
+    </source>
+</phpunit>

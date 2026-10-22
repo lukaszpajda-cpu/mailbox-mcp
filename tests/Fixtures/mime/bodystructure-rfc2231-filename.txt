@@ -1,0 +1,1 @@
+(("text" "plain" ("charset" "us-ascii") NIL NIL "7bit" 15 1 NIL NIL NIL NIL)("application" "pdf" ("name" "=?UTF-8?Q?zam=C3=B3wienie.pdf?=") NIL NIL "base64" 100 NIL ("attachment" ("filename*" "UTF-8''zam%C3%B3wienie.pdf")) NIL NIL) "mixed" ("boundary" "b2231") NIL NIL NIL)

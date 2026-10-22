@@ -1,0 +1,77 @@
+# Expected-failure baseline for the modern-era (2026-07-28) conformance run:
+#   npx @modelcontextprotocol/conformance@0.2.0-alpha.12 server --url ... \
+#     --suite all --spec-version 2026-07-28 \
+#     --expected-failures tests/Conformance/expected-failures-modern.yaml
+#
+# This is a pre-release build of the conformance CLI (the modern/2026-07-28
+# spec version and the `server/discover`, `server-stateless` scenarios only
+# exist there), run in addition to the stable suite in
+# tests/Conformance/expected-failures.yaml.
+#
+# Entries are either a whole scenario name (any failing/warning check inside
+# it is tolerated) or `<scenario>:<check-id>` (only that specific check is
+# tolerated; any other check in the same scenario must pass). mailbox-mcp
+# only implements MCP tool calls (plus server/discover, tools/list,
+# tools/call); it has no resources, prompts, logging, completion, sampling,
+# elicitation, streaming (SSE/subscriptions) or tasks support, and none of
+# the diagnostic probe tools (test_missing_capability, test_image_content,
+# etc.) the suite looks for. Every entry below exercises one of those
+# unimplemented features or probe tools; the comment on each line is the
+# one-line reason.
+#
+# These MUST keep passing (i.e. must never appear below), per the task
+# brief's pass bar:
+#   tools-list, tools-call-simple-text, tools-call-error,
+#   dns-rebinding-protection, server-sse-multiple-streams,
+#   http-header-validation, and — within server-stateless — every check
+#   other than the four listed below, in particular
+#   sep-2575-request-meta-invalid-missing-meta,
+#   sep-2575-request-meta-invalid-missing-protocol-version, and
+#   sep-2575-http-server-header-mismatch-400 (SEP-2575), plus
+#   sep-2243-server-accepts-whitespace-header-value (SEP-2243, inside
+#   http-header-validation).
+server:
+  # server-stateless: per-check, not whole-scenario, so a regression in any
+  # of its other ~21 checks (including the three required SEP-2575 ones
+  # above) is never masked by this baseline.
+  - server-stateless:sep-2575-server-rejects-undeclared-capability # probe tool not implemented (test_missing_capability)
+  - server-stateless:sep-2575-missing-capability-http-400 # probe tool not implemented (test_missing_capability)
+  - server-stateless:sep-2575-http-server-no-independent-requests-on-stream # probe tool not implemented (test_streaming_elicitation)
+  - server-stateless:sep-2575-server-no-log-without-loglevel # probe tool not implemented (test_logging_tool)
+
+  - completion-complete # completion/complete not implemented
+  - tools-call-image # probe tool not implemented (test_image_content); image content type not implemented
+  - tools-call-audio # probe tool not implemented (test_audio_content); audio content type not implemented
+  - tools-call-embedded-resource # probe tool not implemented (test_embedded_resource); embedded resource content type not implemented
+  - tools-call-mixed-content # probe tool not implemented (test_multiple_content_types); mixed image/audio content not implemented
+  - tools-call-with-progress # probe tool not implemented (test_tool_with_progress); progress notifications not implemented
+  - json-schema-2020-12 # probe tool not implemented (json_schema_2020_12_tool)
+
+  - resources-list # resources capability not implemented
+  - resources-read-text # resources capability not implemented
+  - resources-read-binary # resources capability not implemented
+  - resources-templates-read # resources capability not implemented
+  - sep-2164-resource-not-found # resources capability not implemented (resources/read returns -32601 Method not found, not a resource-specific error)
+
+  - prompts-list # prompts capability not implemented
+  - prompts-get-simple # prompts capability not implemented
+  - prompts-get-with-args # prompts capability not implemented
+  - prompts-get-embedded-resource # prompts capability not implemented
+  - prompts-get-with-image # prompts capability not implemented
+
+  - caching # prompts/resources list-caching-hints checks not testable; prompts/resources capability not implemented (tools/list's own caching hints already pass)
+
+  - http-custom-header-server-validation # no tool declares x-mcp-header annotations; custom-header validation (SEP-2243) not implemented
+
+  - input-required-result-basic-elicitation # probe tool not implemented (test_input_required_result_elicitation); elicitation not implemented
+  - input-required-result-basic-sampling # probe tool not implemented (test_input_required_result_sampling); sampling not implemented
+  - input-required-result-basic-list-roots # probe tool not implemented (test_input_required_result_list_roots); roots not implemented
+  - input-required-result-request-state # probe tool not implemented (test_input_required_result_request_state)
+  - input-required-result-multiple-input-requests # probe tool not implemented (test_input_required_result_multiple_inputs)
+  - input-required-result-multi-round # probe tool not implemented (test_input_required_result_elicitation multi-round flow)
+  - input-required-result-missing-input-response # probe tool not implemented (test_input_required_result_elicitation); SHOULD-level
+  - input-required-result-non-tool-request # prompts capability not implemented (prompts/get)
+  - input-required-result-result-type # probe tool not implemented (test_input_required_result_elicitation)
+  - input-required-result-tampered-state # probe tool not implemented (test_input_required_result_elicitation prerequisite)
+  - input-required-result-capability-check # probe tool not implemented (test_input_required_result_capabilities)
+  - input-required-result-ignore-extra-params # probe tool not implemented (test_input_required_result_elicitation); SHOULD-level

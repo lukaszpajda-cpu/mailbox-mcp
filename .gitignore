@@ -1,0 +1,9 @@
+.superpowers/
+vendor/
+.phpunit.cache/
+dist/
+config/config.php
+config/*.local.php
+.php-cs-fixer.cache
+node_modules/
+mailbox-mcp.paths.php

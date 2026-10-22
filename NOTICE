@@ -1,0 +1,13 @@
+NOTICE
+
+Files derived from third-party code are listed below with their original license.
+
+- src/Mail/Imap/Client.php
+  Derived from securemessage/mail-mcp (SocketImapClient.class.php)
+  License: BSD-2-Clause
+  Copyright (c) 2026, The Daniel Morante Company, Inc.
+
+- src/Mail/Smtp/Client.php
+  Derived from securemessage/mail-mcp (SocketSmtpClient.class.php)
+  License: BSD-2-Clause
+  Copyright (c) 2026, The Daniel Morante Company, Inc.

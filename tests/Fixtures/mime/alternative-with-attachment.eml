@@ -1,0 +1,33 @@
+From: Ksiegowosc <faktury@example.com>
+To: jan@example.com
+Subject: Faktura
+Date: Wed, 21 Oct 2026 10:00:00 +0000
+Message-ID: <alt-1@example.com>
+MIME-Version: 1.0
+Content-Type: multipart/mixed; boundary="outer-b"
+
+This is a multi-part message in MIME format.
+
+--outer-b
+Content-Type: multipart/alternative; boundary=inner-b
+
+--inner-b
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
+
+W za=C5=82=C4=85czniku faktura.
+--inner-b
+Content-Type: text/html; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
+
+<p>W za=C5=82=C4=85czniku <b>faktura</b>.</p>
+--inner-b--
+
+--outer-b
+Content-Type: application/pdf; name="invoice.pdf"
+Content-Disposition: attachment; filename="invoice.pdf"
+Content-Transfer-Encoding: base64
+
+JVBERi0xLjQKJSBmaWN0aW9uYWwgaW52b2ljZQoxIDAgb2JqIDw8ID4+IGVuZG9iagp0cmFpbGVy
+IDw8ID4+CiUlRU9GCg==
+--outer-b--
