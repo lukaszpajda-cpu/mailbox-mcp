@@ -25,6 +25,10 @@ run more than one mailbox and want a separate task per account):
 >    clearly needs no reply.
 > 3. For each message that does need a reply:
 >    - Call `get_reply_guidelines` for the account first and follow it.
+>    - If the message asks about specific dates and the account has an
+>      availability source, call `check_availability` with the requested
+>      check-in (`from`) and check-out (`to`) dates before drafting, and
+>      never promise dates it reports as occupied.
 >    - Call `create_draft` with `in_reply_to_uid` set to that message's
 >      uid, so the reply threads correctly.
 > 4. Call `mark_processed` on every message you looked at in step 1,

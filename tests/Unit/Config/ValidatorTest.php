@@ -257,4 +257,72 @@ final class ValidatorTest extends TestCase
 
         Validator::validate($config);
     }
+
+    public function testAvailabilityDefaults(): void
+    {
+        $result = Validator::validate($this->validConfig());
+        $this->assertNull($result['accounts']['example']['availability']);
+
+        $config = $this->validConfig();
+        $config['accounts']['example']['availability'] = ['url' => 'https://www.example.com/availability.php'];
+
+        $result = Validator::validate($config);
+
+        $this->assertSame(
+            ['url' => 'https://www.example.com/availability.php', 'format' => 'occupied-json', 'timeout' => 10],
+            $result['accounts']['example']['availability'],
+        );
+    }
+
+    public function testAvailabilityUrlMustBeHttps(): void
+    {
+        foreach ([
+            'http://www.example.com/availability.php',
+            'ftp://www.example.com/availability.json',
+            'https://user:pass@www.example.com/availability.php',
+            '//www.example.com/availability.php',
+            '/availability.php',
+            'https:///availability.php',
+            '',
+        ] as $url) {
+            $config = $this->validConfig();
+            $config['accounts']['example']['availability'] = ['url' => $url];
+
+            try {
+                Validator::validate($config);
+                $this->fail("accepted {$url}");
+            } catch (ConfigException $e) {
+                $this->assertStringStartsWith('accounts.example.availability.url: ', $e->getMessage());
+            }
+        }
+    }
+
+    public function testAvailabilityFormatAndTimeoutValidated(): void
+    {
+        foreach ([
+            [['format' => 'ical'], 'accounts.example.availability.format: '],
+            [['timeout' => 0], 'accounts.example.availability.timeout: '],
+            [['timeout' => 31], 'accounts.example.availability.timeout: '],
+            [['timeout' => '10'], 'accounts.example.availability.timeout: '],
+            [['extra' => true], "accounts.example.availability: unknown key 'extra'"],
+        ] as [$override, $prefix]) {
+            $config = $this->validConfig();
+            $config['accounts']['example']['availability'] = $override + ['url' => 'https://www.example.com/a.php'];
+
+            try {
+                Validator::validate($config);
+                $this->fail('accepted ' . json_encode($override));
+            } catch (ConfigException $e) {
+                $this->assertStringStartsWith($prefix, $e->getMessage());
+            }
+        }
+
+        $config = $this->validConfig();
+        $config['accounts']['example']['availability'] = 'https://www.example.com/a.php';
+
+        $this->expectException(ConfigException::class);
+        $this->expectExceptionMessage('accounts.example.availability: must be an array or null');
+
+        Validator::validate($config);
+    }
 }

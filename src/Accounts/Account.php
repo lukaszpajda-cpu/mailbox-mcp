@@ -16,6 +16,7 @@ final class Account
      * @param array<string, mixed>  $smtp    validated accounts.<id>.smtp shape
      * @param array<string, ?string> $folders drafts|sent|trash|junk => folder name or null
      * @param array{allowed_domains: array<int, string>, denied_domains: array<int, string>} $send
+     * @param array{url: string, format: string, timeout: int}|null $availability validated accounts.<id>.availability, or null when no source is configured
      */
     public function __construct(
         public readonly string $id,
@@ -27,6 +28,7 @@ final class Account
         public readonly ?string $guidelinesFile,
         public readonly string $processedKeyword,
         public readonly array $send,
+        public readonly ?array $availability = null,
     ) {
     }
 
@@ -34,7 +36,8 @@ final class Account
      * @param array<string, mixed> $cfg validated accounts.<id> shape: email, name,
      *                                   imap{host,port,encryption,username,password,verify_peer},
      *                                   smtp{…}, folders{drafts,sent,trash,junk}, signature,
-     *                                   guidelines_file, processed_keyword, send{allowed_domains,denied_domains}
+     *                                   guidelines_file, processed_keyword, send{allowed_domains,denied_domains},
+     *                                   availability{url,format,timeout}|null
      */
     public static function fromConfig(string $id, array $cfg): self
     {
@@ -53,6 +56,7 @@ final class Account
             self::nullableString($cfg['guidelines_file'] ?? null),
             self::stringOrDefault($cfg['processed_keyword'] ?? null, ''),
             self::normaliseSend(self::arraySection($cfg, 'send')),
+            self::normaliseAvailability($cfg['availability'] ?? null),
         );
     }
 
@@ -98,6 +102,25 @@ final class Account
         return [
             'allowed_domains' => self::stringList($send['allowed_domains'] ?? []),
             'denied_domains' => self::stringList($send['denied_domains'] ?? []),
+        ];
+    }
+
+    /**
+     * @return array{url: string, format: string, timeout: int}|null
+     */
+    private static function normaliseAvailability(mixed $availability): ?array
+    {
+        if (!is_array($availability) || !is_string($availability['url'] ?? null)) {
+            return null;
+        }
+
+        $format = $availability['format'] ?? null;
+        $timeout = $availability['timeout'] ?? null;
+
+        return [
+            'url' => $availability['url'],
+            'format' => is_string($format) ? $format : 'occupied-json',
+            'timeout' => is_int($timeout) ? $timeout : 10,
         ];
     }
 

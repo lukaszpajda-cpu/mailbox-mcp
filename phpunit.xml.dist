@@ -27,6 +27,7 @@
         <env name="MAILBOX_MCP_TEST_PASSWORD" value=""/>
         <env name="MAILBOX_MCP_TEST_EMAIL" value=""/>
         <env name="MAILBOX_MCP_TEST_VERIFY_PEER" value="0"/>
+        <env name="MAILBOX_MCP_TEST_AVAILABILITY_URL" value=""/>
     </php>
 
     <source>

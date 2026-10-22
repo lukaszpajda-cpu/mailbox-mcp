@@ -132,7 +132,7 @@ final class Registry
         $session = $this->sessions->open($account, $this->limits, $this->deadlineNs);
 
         try {
-            $result = $tool->execute($args, new ToolContext($account, $session, $this->limits, $this->clock));
+            $result = $tool->execute($args, new ToolContext($account, $session, $this->limits, $this->clock, $this->deadlineNs));
             $this->lastAudit = $result->audit;
 
             return $result;

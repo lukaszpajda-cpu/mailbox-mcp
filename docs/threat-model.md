@@ -14,6 +14,7 @@
 | Information disclosure | Generic JSON-RPC errors to the client; details only in the audit log; `display_errors` off; no stack traces; 404 for anything unauthenticated |
 | Credential theft from disk | Config file outside web root, mode 600, documented; passwords only in config; diagnostic page disabled unless enabled in config and token-protected |
 | Supply chain | No runtime dependencies; dev dependencies pinned in `composer.lock`; CI runs tests, static analysis and the MCP conformance suite |
+| Server-side request forgery / data leaving through `check_availability` | The only outbound HTTP request is to the per-account `availability.url` from the config, validated as an absolute `https://` URL without credentials; tool arguments never form part of the request (the whole feed is fetched and filtered locally, so requested dates are not sent); certificate verification on, no redirects, https-only protocol, total timeout capped by the request budget, 256 KB response cap; malformed feeds yield a fixed error that never echoes the body, and the feed's `generated` value is shown only when it looks like an ISO 8601 timestamp |
 | Lost audit trail | JSONL audit log per day, outside web root, retained N days, written for every tool call and every auth failure |
 
 ## What this does not protect against

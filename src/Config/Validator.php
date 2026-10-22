@@ -19,6 +19,12 @@ final class Validator
 
     private const FOLDER_KEYS = ['drafts', 'sent', 'trash', 'junk'];
 
+    private const AVAILABILITY_KEYS = ['url', 'format', 'timeout'];
+
+    private const AVAILABILITY_FORMATS = ['occupied-json'];
+
+    private const AVAILABILITY_MAX_TIMEOUT = 30;
+
     private const ACCOUNT_ID_PATTERN = '/^[a-z0-9][a-z0-9_-]{0,31}$/';
 
     private const TOKEN_PATTERN = '/^[A-Za-z0-9_-]{43,}$/';
@@ -52,6 +58,18 @@ final class Validator
         'send' => ['allowed_domains' => [], 'denied_domains' => []],
         'imap' => ['verify_peer' => true],
         'smtp' => ['verify_peer' => true],
+        'availability' => null,
+    ];
+
+    /**
+     * Defaults for an `availability` block that is present (an absent
+     * block stays null: the account has no availability source).
+     *
+     * @var array<string, mixed>
+     */
+    private const AVAILABILITY_DEFAULTS = [
+        'format' => 'occupied-json',
+        'timeout' => 10,
     ];
 
     /**
@@ -381,6 +399,7 @@ final class Validator
 
         $merged['folders'] = self::validateFolders($id, $folders);
         $merged['send'] = self::validateSend($id, $send);
+        $merged['availability'] = self::validateAvailability($id, $merged['availability'] ?? null);
 
         return $merged;
     }
@@ -477,5 +496,63 @@ final class Validator
         }
 
         return $send;
+    }
+
+    /**
+     * @return array{url: string, format: string, timeout: int}|null
+     */
+    private static function validateAvailability(string $accountId, mixed $availability): ?array
+    {
+        $prefix = "accounts.{$accountId}.availability";
+
+        if (null === $availability) {
+            return null;
+        }
+
+        if (!is_array($availability)) {
+            throw new ConfigException("{$prefix}: must be an array or null");
+        }
+
+        foreach (array_keys($availability) as $key) {
+            if (!in_array($key, self::AVAILABILITY_KEYS, true)) {
+                throw new ConfigException("{$prefix}: unknown key '{$key}'");
+            }
+        }
+
+        $availability += self::AVAILABILITY_DEFAULTS;
+
+        $url = $availability['url'] ?? null;
+
+        if (!is_string($url) || !self::isPlainHttpsUrl($url)) {
+            throw new ConfigException("{$prefix}.url: must be an absolute https:// URL without credentials");
+        }
+
+        $format = $availability['format'];
+
+        if (!is_string($format) || !in_array($format, self::AVAILABILITY_FORMATS, true)) {
+            throw new ConfigException("{$prefix}.format: must be one of " . implode(', ', self::AVAILABILITY_FORMATS));
+        }
+
+        $timeout = $availability['timeout'];
+
+        if (!is_int($timeout) || $timeout < 1 || $timeout > self::AVAILABILITY_MAX_TIMEOUT) {
+            throw new ConfigException("{$prefix}.timeout: must be an integer between 1 and " . self::AVAILABILITY_MAX_TIMEOUT);
+        }
+
+        return ['url' => $url, 'format' => $format, 'timeout' => $timeout];
+    }
+
+    private static function isPlainHttpsUrl(string $url): bool
+    {
+        if (!str_starts_with($url, 'https://') || false === filter_var($url, FILTER_VALIDATE_URL)) {
+            return false;
+        }
+
+        $parts = parse_url($url);
+
+        return is_array($parts)
+            && '' !== ($parts['host'] ?? '')
+            && !isset($parts['user'])
+            && !isset($parts['pass']);
     }
 }

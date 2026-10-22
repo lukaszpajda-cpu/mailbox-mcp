@@ -11,6 +11,6 @@ final class AutoloadTest extends TestCase
 {
     public function testAutoloaderLoadsVersion(): void
     {
-        $this->assertSame('0.1.0', Version::STRING);
+        $this->assertSame('0.2.0', Version::STRING);
     }
 }

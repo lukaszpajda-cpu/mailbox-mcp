@@ -123,4 +123,20 @@ final class AccountTest extends TestCase
 
         $this->assertSame('example.com', $account->identity->domain());
     }
+
+    public function testFromConfigReadsAvailability(): void
+    {
+        $account = Account::fromConfig('example', $this->validCfg());
+        $this->assertNull($account->availability);
+
+        $cfg = $this->validCfg();
+        $cfg['availability'] = ['url' => 'https://www.example.com/a.php', 'format' => 'occupied-json', 'timeout' => 7];
+
+        $account = Account::fromConfig('example', $cfg);
+
+        $this->assertSame(
+            ['url' => 'https://www.example.com/a.php', 'format' => 'occupied-json', 'timeout' => 7],
+            $account->availability,
+        );
+    }
 }

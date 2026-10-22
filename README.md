@@ -118,6 +118,7 @@ file-manager upload, file modes, troubleshooting): see
 | --- | --- | --- |
 | `list_accounts` | Lists every configured mailbox account: email, display name, default flag, whether reply guidelines are configured. | Yes |
 | `list_folders` | Lists an account's IMAP folders with detected role (inbox/drafts/sent/trash/junk/archive/none) and message/unseen counts. | Yes |
+| `check_availability` | Checks whether a stay (check-in `from`, check-out `to`) is free according to the account's availability source — the operator's own calendar feed, see [`docs/availability.md`](docs/availability.md) — and lists overlapping and nearby occupied ranges. Only for accounts with `availability` configured. | Yes |
 | `search_emails` | Searches a folder by sender, recipient, subject, body text and/or date range; returns the newest matches with a short snippet each. Never marks messages read. | Yes |
 | `get_email` | Returns one message by folder and uid: headers, a text rendering of the body, and attachment metadata (no content). Never marks the message read. | Yes |
 | `get_thread` | Collects the conversation around a message via Message-ID/In-Reply-To/References, oldest first. | Yes |
@@ -160,7 +161,8 @@ defaults).
 | `audit.retention_days` | Audit log files older than this are deleted opportunistically. |
 | `audit.hash_ip` | Store `sha256(ip)` in the audit log instead of the raw IP. |
 | `diag.enabled` | Enables `public/diag.php`. Off by default; turn on only for setup, then back off. |
-| `accounts.<id>` | One mailbox: `email`, `name`, `imap`/`smtp` connection settings, special-use `folders` overrides, `signature`, `guidelines_file`, `processed_keyword`, and the `send` recipient policy (`allowed_domains`/`denied_domains`). The first entry is the default account. |
+| `accounts.<id>` | One mailbox: `email`, `name`, `imap`/`smtp` connection settings, special-use `folders` overrides, `signature`, `guidelines_file`, `processed_keyword`, the `send` recipient policy (`allowed_domains`/`denied_domains`), and the optional `availability` source. The first entry is the default account. |
+| `accounts.<id>.availability` | Optional calendar feed for `check_availability`: `url` (absolute `https://` URL of the operator's own endpoint, no credentials in it), `format` (`occupied-json`, the only format so far) and `timeout` (seconds, 1–30, default 10). Omit it and the tool reports that no source is configured. The feed must contain dates only, never guest data; see [`docs/availability.md`](docs/availability.md). |
 
 ## Scheduled task
 

@@ -13,7 +13,9 @@ use MailboxMcp\Config\Loader;
 use MailboxMcp\Http\Request;
 use MailboxMcp\Kernel;
 use MailboxMcp\Mail\MailSessionFactory;
+use MailboxMcp\Support\HttpFetcher;
 use MailboxMcp\Support\SystemClock;
+use MailboxMcp\Tools\CheckAvailabilityTool;
 use MailboxMcp\Tools\CreateDraftTool;
 use MailboxMcp\Tools\GetEmailTool;
 use MailboxMcp\Tools\GetReplyGuidelinesTool;
@@ -59,13 +61,14 @@ try {
 
 $accounts = AccountResolver::fromConfig($config);
 
-// Registration order: list_accounts, list_folders, search_emails,
-// get_email, get_thread, create_draft, send_draft, mark_processed,
-// get_reply_guidelines. send_draft keeps its daily-cap counters under
+// Registration order: list_accounts, list_folders, check_availability,
+// search_emails, get_email, get_thread, create_draft, send_draft,
+// mark_processed, get_reply_guidelines. send_draft keeps its daily-cap counters under
 // <paths.var>/state.
 $tools = [
     new ListAccountsTool($accounts),
     new ListFoldersTool(),
+    new CheckAvailabilityTool(new HttpFetcher()),
     new SearchEmailsTool(),
     new GetEmailTool(),
     new GetThreadTool(),

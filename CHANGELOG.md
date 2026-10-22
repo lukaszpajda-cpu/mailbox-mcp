@@ -5,6 +5,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.0] - 2026-10-22
+
+### Added
+
+- `check_availability` tool: checks whether a requested stay (check-in `from`, check-out `to`, at most 60 nights, at most 2 years ahead) is free according to an operator-configured availability source, and lists the overlapping occupied ranges and those within 45 days around the stay. The source URL comes from the config only; the whole feed is fetched and filtered locally, so the requested dates are never sent anywhere.
+- Per-account `availability` config block (`url` https only, `format` `occupied-json`, `timeout` 1–30 s, default 10); the `occupied-json` contract is documented in `docs/availability.md`.
+- `Support\HttpFetcher`: HTTPS-only GET with certificate verification, no redirects, a total timeout and a 256 KiB response cap, using ext-curl when loaded and the https:// stream wrapper otherwise (no new runtime dependency).
+- `ToolContext::$deadlineNs`: the request deadline is now visible to tools, so an outbound fetch never outlives the request budget.
+
 ## [0.1.0] - 2026-10-22
 
 ### Added

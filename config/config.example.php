@@ -140,6 +140,19 @@ return [
             // send_draft recipient policy for this account. Empty lists
             // mean "no restriction" / "nothing denied".
             'send' => ['allowed_domains' => [], 'denied_domains' => []],
+            // Optional: the operator's own calendar feed, used by
+            // check_availability (see docs/availability.md). https only,
+            // no credentials in the URL; the feed must list dates only,
+            // never guest data. Omit the block if you have no such feed.
+            // 'availability' => [
+            //     'url' => 'https://www.example.com/availability.php',
+            //     // Only format so far: {"success": true, "generated": "…",
+            //     // "occupied": [{"from": "YYYY-MM-DD", "to": "YYYY-MM-DD"}]}
+            //     'format' => 'occupied-json',
+            //     // Seconds, 1..30 (default 10); never more than what is
+            //     // left of limits.request_budget_seconds.
+            //     'timeout' => 10,
+            // ],
         ],
     ],
 ];
