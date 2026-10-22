@@ -44,7 +44,7 @@ at most 256 KiB, no redirects):
 | Key | Meaning |
 | --- | --- |
 | `success` | `true` when the list is complete and current. `false` (any other keys ignored) tells mailbox-mcp the source is temporarily unable to answer, e.g. the booking database is down; the tool then reports `Availability source temporarily unavailable` instead of guessing. |
-| `generated` | Optional ISO 8601 date or date-time at which the list was produced; shown to the model as `source_generated`. Anything that does not look like an ISO 8601 timestamp is shown as `unknown`. |
+| `generated` | Optional time at which the list was produced, shown to the model as `source_generated`. Accepted: `YYYY-MM-DD`, `YYYY-MM-DDThh:mm:ss±hh:mm`, `YYYY-MM-DDThh:mm±hh:mm`, `YYYY-MM-DDThh:mm:ss` or `YYYY-MM-DD hh:mm:ss`; it is shown re-formatted (with an offset as `YYYY-MM-DDThh:mm:ss±hh:mm`). Anything else, including impossible dates or times, is shown as `unknown`. |
 | `occupied` | A JSON array (at most 2000 entries) of occupied ranges, in any order. Each entry has `from` and `to`, both `YYYY-MM-DD` calendar dates, `to` after `from`. |
 
 A range occupies the **nights** from `from` (the check-in day) up to but

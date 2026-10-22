@@ -23,7 +23,7 @@ final class HttpFetcher implements HttpFetcherInterface
 
     public function get(string $url, int $timeoutSeconds, int $maxBytes): string
     {
-        if (!self::isPlainHttpsUrl($url)) {
+        if (!Url::isPlainHttps($url)) {
             throw new HttpFetchException('fetch failed: only absolute https:// URLs without credentials are allowed');
         }
 
@@ -36,20 +36,6 @@ final class HttpFetcher implements HttpFetcherInterface
         }
 
         return $this->viaStream($url, $timeoutSeconds, $maxBytes);
-    }
-
-    private static function isPlainHttpsUrl(string $url): bool
-    {
-        if (0 !== strncasecmp($url, 'https://', 8) || false === filter_var($url, FILTER_VALIDATE_URL)) {
-            return false;
-        }
-
-        $parts = parse_url($url);
-
-        return is_array($parts)
-            && '' !== ($parts['host'] ?? '')
-            && !isset($parts['user'])
-            && !isset($parts['pass']);
     }
 
     private static function userAgent(): string

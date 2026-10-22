@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace MailboxMcp\Config;
 
+use MailboxMcp\Support\Url;
+
 /**
  * Validates a raw config array and returns it merged over
  * {@see Defaults::all()}. Throws {@see ConfigException} on the first
@@ -523,7 +525,7 @@ final class Validator
 
         $url = $availability['url'] ?? null;
 
-        if (!is_string($url) || !self::isPlainHttpsUrl($url)) {
+        if (!is_string($url) || !Url::isPlainHttps($url)) {
             throw new ConfigException("{$prefix}.url: must be an absolute https:// URL without credentials");
         }
 
@@ -542,17 +544,4 @@ final class Validator
         return ['url' => $url, 'format' => $format, 'timeout' => $timeout];
     }
 
-    private static function isPlainHttpsUrl(string $url): bool
-    {
-        if (!str_starts_with($url, 'https://') || false === filter_var($url, FILTER_VALIDATE_URL)) {
-            return false;
-        }
-
-        $parts = parse_url($url);
-
-        return is_array($parts)
-            && '' !== ($parts['host'] ?? '')
-            && !isset($parts['user'])
-            && !isset($parts['pass']);
-    }
 }

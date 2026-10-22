@@ -34,8 +34,19 @@ final class CheckAvailabilityTool implements ToolInterface
 
     private const NEARBY_DAYS = 45;
 
-    /** ISO 8601 date or date-time; anything else is shown as `unknown`. */
-    private const GENERATED_PATTERN = '/^\d{4}-\d{2}-\d{2}([T ]\d{2}:\d{2}(:\d{2}(\.\d{1,9})?)?)?(Z|[+-]\d{2}:?\d{2})?$/';
+    /**
+     * Accepted `generated` shapes, format => whether it carries an offset;
+     * anything else (or an impossible value) is shown as `unknown`.
+     *
+     * @var array<string, bool>
+     */
+    private const GENERATED_FORMATS = [
+        'Y-m-d' => false,
+        'Y-m-d\\TH:i:sP' => true,
+        'Y-m-d\\TH:iP' => true,
+        'Y-m-d\\TH:i:s' => false,
+        'Y-m-d H:i:s' => false,
+    ];
 
     public function __construct(private readonly HttpFetcherInterface $fetcher)
     {
@@ -178,6 +189,32 @@ final class CheckAvailabilityTool implements ToolInterface
     }
 
     /**
+     * The feed's `generated` value, re-rendered from a strict parse: the
+     * date alone, `DATE_ATOM` when it carries an offset, or
+     * `Y-m-d\TH:i:s` when it does not (no zone is invented); null when it
+     * is not exactly one of {@see self::GENERATED_FORMATS} or names an
+     * impossible date/time, so nothing else from the feed reaches the model.
+     */
+    private static function normaliseGenerated(string $value): ?string
+    {
+        foreach (self::GENERATED_FORMATS as $format => $hasOffset) {
+            $parsed = DateTimeImmutable::createFromFormat('!' . $format, $value, new DateTimeZone('UTC'));
+
+            if (false === $parsed || $parsed->format($format) !== $value) {
+                continue;
+            }
+
+            if ('Y-m-d' === $format) {
+                return $parsed->format('Y-m-d');
+            }
+
+            return $parsed->format($hasOffset ? DATE_ATOM : 'Y-m-d\\TH:i:s');
+        }
+
+        return null;
+    }
+
+    /**
      * @param array{url: string, format: string, timeout: int} $source
      *
      * @return array{0: ?string, 1: list<array{0: string, 1: string}>} generated timestamp (null if absent/unusable), occupied ranges
@@ -259,10 +296,6 @@ final class CheckAvailabilityTool implements ToolInterface
             $ranges[] = [$range['from'], $range['to']];
         }
 
-        if (null !== $generated && 1 !== preg_match(self::GENERATED_PATTERN, $generated)) {
-            $generated = null;
-        }
-
-        return [$generated, $ranges];
+        return [null === $generated ? null : self::normaliseGenerated($generated), $ranges];
     }
 }
